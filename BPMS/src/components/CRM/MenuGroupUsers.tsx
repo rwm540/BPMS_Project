@@ -328,7 +328,7 @@ export default function GroupUserDynamicForm() {
               onClick={handleGenerateJSON}
               className="w-full mt-2 bg-indigo-600 text-white px-3 py-1.5 rounded hover:bg-indigo-700 transition text-sm flex items-center justify-center gap-2"
             >
-              {fields.length === 0 ? "ایجاد فرم" : "تغییر فرم"}
+                ایجاد فرم
             </button>
           </div>
 
@@ -373,7 +373,6 @@ export default function GroupUserDynamicForm() {
                                       checked={field.grouper || false}
                                       onChange={() => toggleGrouper(field.id)}
                                     />
-                                    گروه‌بندی
                                   </label>
 
                                   {field.grouper && (

@@ -7,13 +7,7 @@ import {
   Draggable,
   DropResult
 } from "@hello-pangea/dnd";
-import {
-  FaPlus,
-  FaTrash,
-  FaWpforms,
-  FaListUl,
-  FaPen
-} from "react-icons/fa6";
+import { FaPlus, FaTrash, FaWpforms, FaListUl, FaPen } from "react-icons/fa6";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
@@ -38,6 +32,27 @@ export default function MenuDefineCustomer() {
   const [options, setOptions] = useState("");
   const [jsonOutput, setJsonOutput] = useState("");
 
+  const [customIdFieldId, setCustomIdFieldId] = useState<string | null>(null);
+  const toggleCustomID = (id: string) => {
+    if (customIdFieldId === id) {
+      // اگه دوباره روی همون کلیک شد، بردار
+      setFields(
+        fields.map((f) => (f.id === id ? { ...f, CustomID: false } : f))
+      );
+      setCustomIdFieldId(null);
+    }
+    else {
+      // بقیه false، این یکی true
+      setFields(
+        fields.map((f) => ({
+          ...f,
+          CustomID: f.id === id
+        }))
+      );
+      setCustomIdFieldId(id);
+    }
+  };
+
   useEffect(() => {
     const codeField = {
       id: "customer-code",
@@ -47,7 +62,16 @@ export default function MenuDefineCustomer() {
       fixed: true,
       editing: false
     };
-    setFields([codeField]);
+    const levelField = {
+      id: "customer-level",
+      type: "select",
+      title: "اولویت بندی مشتری",
+      options: ["VIP", "متوسط", "ضعیف"],
+      fixed: true,
+      editing: false
+    };
+
+    setFields([codeField, levelField]); // ← هر دو رو با هم ست می‌کنیم
   }, []);
 
   const handleAddField = () => {
@@ -66,35 +90,43 @@ export default function MenuDefineCustomer() {
   };
 
   const handleDeleteField = (id: string) => {
-    const field = fields.find(f => f.id === id);
+    const field = fields.find((f) => f.id === id);
     if (field?.fixed) return;
-    setFields(fields.filter(f => f.id !== id));
+    setFields(fields.filter((f) => f.id !== id));
   };
 
   const handleToggleEdit = (id: string) => {
-    const field = fields.find(f => f.id === id);
+    const field = fields.find((f) => f.id === id);
     if (field?.fixed) return;
-    setFields(fields.map(f => f.id === id ? { ...f, editing: !f.editing } : f));
+    setFields(
+      fields.map((f) => (f.id === id ? { ...f, editing: !f.editing } : f))
+    );
   };
 
   const handleUpdateTitle = (id: string, newTitle: string) => {
-    setFields(fields.map(f => f.id === id ? { ...f, title: newTitle } : f));
+    setFields(fields.map((f) => (f.id === id ? { ...f, title: newTitle } : f)));
   };
 
   const handleUpdateOption = (id: string, newOptions: string) => {
-    setFields(fields.map(f => f.id === id ? { ...f, options: newOptions.split("\n") } : f));
+    setFields(
+      fields.map((f) =>
+        f.id === id ? { ...f, options: newOptions.split("\n") } : f
+      )
+    );
   };
 
   const handleUpdateType = (id: string, newType: string) => {
-    setFields(fields.map(f =>
-      f.id === id
-        ? {
-            ...f,
-            type: newType,
-            options: newType === "select" ? [] : f.options
-          }
-        : f
-    ));
+    setFields(
+      fields.map((f) =>
+        f.id === id
+          ? {
+              ...f,
+              type: newType,
+              options: newType === "select" ? [] : f.options
+            }
+          : f
+      )
+    );
   };
 
   const handleDragEnd = (result: DropResult) => {
@@ -119,13 +151,34 @@ export default function MenuDefineCustomer() {
 
     switch (field.type) {
       case "text":
-        return <input type="text" className="border px-2 py-1 rounded w-full text-black text-sm" />;
+        return (
+          <input
+            type="text"
+            className="border px-2 py-1 rounded w-full text-black text-sm"
+          />
+        );
       case "number":
-        return <input type="number" className="border px-2 py-1 rounded w-full text-black text-sm" />;
+        return (
+          <input
+            type="number"
+            className="border px-2 py-1 rounded w-full text-black text-sm"
+          />
+        );
       case "date":
-        return <DatePicker calendar={persian} locale={persian_fa} inputClass="w-full px-2 py-1 text-black text-sm border rounded" />;
+        return (
+          <DatePicker
+            calendar={persian}
+            locale={persian_fa}
+            inputClass="w-full px-2 py-1 text-black text-sm border rounded"
+          />
+        );
       case "textarea":
-        return <textarea rows={2} className="border px-2 py-1 rounded w-full text-black text-sm" />;
+        return (
+          <textarea
+            rows={2}
+            className="border px-2 py-1 rounded w-full text-black text-sm"
+          />
+        );
       case "checkbox":
         return <input type="checkbox" className="scale-125" />;
       case "select":
@@ -142,9 +195,15 @@ export default function MenuDefineCustomer() {
   };
 
   const handleGenerateJSON = () => {
-    const json = JSON.stringify(fields.map(({ id, editing, fixed, ...rest }) => rest), null, 2);
+    const json = JSON.stringify(
+      fields.map(({ id, editing, ...rest }) => rest),
+      null,
+      2
+    );
     setJsonOutput(json);
   };
+
+  const [createTables, setCreateTables] = useState(false);
 
   return (
     <div className="flex flex-wrap gap-4 items-start w-full overflow-x-hidden">
@@ -171,13 +230,17 @@ export default function MenuDefineCustomer() {
           >
             <option value="">انتخاب کنید</option>
             {fieldTypes.map((ft) => (
-              <option key={ft.type} value={ft.type}>{ft.label}</option>
+              <option key={ft.type} value={ft.type}>
+                {ft.label}
+              </option>
             ))}
           </select>
         </div>
         {selectedType === "select" && (
           <div className="mb-2">
-            <div className="text-xs text-black mb-1">گزینه‌ها (هر خط یک گزینه)</div>
+            <div className="text-xs text-black mb-1">
+              گزینه‌ها (هر خط یک گزینه)
+            </div>
             <textarea
               rows={2}
               value={options}
@@ -208,12 +271,22 @@ export default function MenuDefineCustomer() {
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="fields">
             {(provided) => (
-              <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className="space-y-4"
+              >
                 {fields.length === 0 && (
-                  <p className="text-gray-500 text-sm">فعلاً فیلدی اضافه نشده است.</p>
+                  <p className="text-gray-500 text-sm">
+                    فعلاً فیلدی اضافه نشده است.
+                  </p>
                 )}
                 {fields.map((field, index) => (
-                  <Draggable key={field.id} draggableId={field.id} index={index}>
+                  <Draggable
+                    key={field.id}
+                    draggableId={field.id}
+                    index={index}
+                  >
                     {(provided) => (
                       <div
                         ref={provided.innerRef}
@@ -223,21 +296,43 @@ export default function MenuDefineCustomer() {
                       >
                         <div className="flex justify-between items-center mb-2">
                           <div className="text-black text-sm flex items-center gap-2">
+                            {/* Custom ID toggle */}
+                            <div className="flex items-center gap-2 text-xs text-gray-600">
+                              <label className="flex items-center gap-1 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={field.CustomID || false}
+                                  onChange={() => toggleCustomID(field.id)}
+                                />
+                              </label>
+
+                              {field.CustomID && (
+                                <span className="text-orange-600 font-bold">
+                                  [CustomID]
+                                </span>
+                              )}
+                            </div>
                             {field.editing ? (
                               <>
                                 <input
                                   type="text"
                                   value={field.title}
-                                  onChange={(e) => handleUpdateTitle(field.id, e.target.value)}
+                                  onChange={(e) =>
+                                    handleUpdateTitle(field.id, e.target.value)
+                                  }
                                   className="px-2 py-1 text-black text-sm border rounded"
                                 />
                                 <select
                                   value={field.type}
-                                  onChange={(e) => handleUpdateType(field.id, e.target.value)}
+                                  onChange={(e) =>
+                                    handleUpdateType(field.id, e.target.value)
+                                  }
                                   className="px-2 py-1 text-black text-sm border rounded"
                                 >
                                   {fieldTypes.map((ft) => (
-                                    <option key={ft.type} value={ft.type}>{ft.label}</option>
+                                    <option key={ft.type} value={ft.type}>
+                                      {ft.label}
+                                    </option>
                                   ))}
                                 </select>
                               </>
@@ -269,7 +364,9 @@ export default function MenuDefineCustomer() {
                           <textarea
                             rows={2}
                             defaultValue={field.options.join("\n")}
-                            onBlur={(e) => handleUpdateOption(field.id, e.target.value)}
+                            onBlur={(e) =>
+                              handleUpdateOption(field.id, e.target.value)
+                            }
                             className="w-full px-2 py-1 border rounded text-black text-sm mb-2"
                           ></textarea>
                         )}
@@ -286,7 +383,9 @@ export default function MenuDefineCustomer() {
 
         {jsonOutput && (
           <div className="mt-6">
-            <h3 className="text-md font-bold text-black mb-2">📦 خروجی JSON فرم مشتری</h3>
+            <h3 className="text-md font-bold text-black mb-2">
+              📦 خروجی JSON فرم مشتری
+            </h3>
             <pre className="bg-gray-200 p-4 rounded text-black overflow-auto text-sm whitespace-pre-wrap">
               {jsonOutput}
             </pre>
