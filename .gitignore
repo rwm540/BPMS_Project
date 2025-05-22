@@ -1,0 +1,24 @@
+# === Node.js / Next.js ===
+BPMS/node_modules/
+BPMS/.next/
+BPMS/.env.local
+BPMS/.env
+BPMS/out/
+BPMS/package-lock.json
+BPMS/.turbo/
+
+# === ASP.NET Core ===
+ServerBPMS/bin/
+ServerBPMS/obj/
+ServerBPMS/*.user
+ServerBPMS/*.suo
+ServerBPMS/*.vspscc
+ServerBPMS/.vs/
+ServerBPMS/appsettings.*.json
+ServerBPMS/appsettings.json
+
+# === Global ===
+*.log
+.env
+.DS_Store
+Thumbs.db
