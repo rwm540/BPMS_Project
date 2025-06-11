@@ -36,5 +36,5 @@ module.exports = {
   //     NEXT_PUBLIC_IMG: process.env.NEXT_PUBLIC_IMG,
   //     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
   //   },
-  output: 'export',
+ // output: 'export',
 };

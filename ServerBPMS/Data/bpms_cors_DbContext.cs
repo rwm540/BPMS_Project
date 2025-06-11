@@ -12,6 +12,8 @@ public class bpms_cors_DbContext : DbContext
     }
    public DbSet<Proccess> Proccess { get; set; }
    public DbSet<CreateForm> CreateForm { get;set; } 
+   public DbSet<CreateFormCRM> CreateFormCRMs {get;set;}
+   public DbSet<CrmFormData> CrmFormDatas {get;set;} 
    public DbSet<Login> Logins {get;set;}
    public DbSet<Log_Login> Log_Logins {get;set;}
    public DbSet<AccessLevel> AccessLevels {get;set;}

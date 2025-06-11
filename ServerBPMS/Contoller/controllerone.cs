@@ -25,6 +25,269 @@ namespace ServerBPMS.Controller
 
 
 
+
+
+        /* ********************************************************************************************************* */
+        /* API ها برای مدیریت تعریف فرم‌های داینامیک (CreateFormCRM) */
+        /* ********************************************************************************************************* */
+
+        // POST: api/ControllerOne/form-schemas
+        // برای ذخیره یک تعریف فرم جدید
+        [HttpPost("form-schemas")]
+        public async Task<IActionResult> CreateFormSchema([FromBody] CreateFormCRM formSchema)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                // می‌توانید CreatedByUserId را از کاربر احراز هویت شده بگیرید
+                // formSchema.CreatedByUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                await _formService.SaveFormSchemaAsync(formSchema);
+                // پس از ایجاد موفقیت‌آمیز، شیء ایجاد شده را برگردانید.
+                // Http 201 CreatedAtAction به همراه URI منبع جدید.
+                return CreatedAtAction(nameof(GetFormSchemaById), new { id = formSchema.Id }, formSchema);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"❌ خطا در ایجاد تعریف فرم: {ex.Message}");
+            }
+        }
+
+        // PUT: api/ControllerOne/form-schemas/{id}
+        // برای بروزرسانی یک تعریف فرم موجود
+        [HttpPut("form-schemas/{id}")]
+        public async Task<IActionResult> UpdateFormSchema(int id, [FromBody] CreateFormCRM formSchema)
+        {
+            if (id != formSchema.Id)
+            {
+                return BadRequest("⛔ شناسه فرم با شناسه مسیر همخوانی ندارد.");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var result = await _formService.UpdateFormSchemaAsync(formSchema);
+                if (!result)
+                {
+                    return NotFound("⛔ تعریف فرم با این شناسه یافت نشد.");
+                }
+                return NoContent(); // 204 No Content for successful update (بدون بازگشت محتوا)
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"❌ خطا در بروزرسانی تعریف فرم: {ex.Message}");
+            }
+        }
+
+        // GET: api/ControllerOne/form-schemas
+        // برای دریافت تمام تعاریف فرم
+        [HttpGet("form-schemas")]
+        public async Task<IActionResult> GetAllFormSchemas()
+        {
+            try
+            {
+                var schemas = await _formService.GetAllFormSchemasAsync();
+                return Ok(schemas); // 200 OK
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"❌ خطا در دریافت تعاریف فرم: {ex.Message}");
+            }
+        }
+
+        // GET: api/ControllerOne/form-schemas/{id}
+        // برای دریافت یک تعریف فرم خاص بر اساس ID
+        [HttpGet("form-schemas/{id}")]
+        public async Task<IActionResult> GetFormSchemaById(int id)
+        {
+            try
+            {
+                var schema = await _formService.GetFormSchemaByIdAsync(id);
+                if (schema == null)
+                {
+                    return NotFound("⛔ تعریف فرم با این شناسه یافت نشد."); // 404 Not Found
+                }
+                return Ok(schema);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"❌ خطا در دریافت تعریف فرم: {ex.Message}");
+            }
+        }
+
+        // DELETE: api/ControllerOne/form-schemas/{id}
+        // برای حذف یک تعریف فرم
+        [HttpDelete("form-schemas/{id}")]
+        public async Task<IActionResult> DeleteFormSchema(int id)
+        {
+            try
+            {
+                var result = await _formService.DeleteFormSchemaAsync(id);
+                if (!result)
+                {
+                    return NotFound("⛔ تعریف فرم با این شناسه یافت نشد.");
+                }
+                return NoContent(); // 204 No Content for successful deletion
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"❌ خطا در حذف تعریف فرم: {ex.Message}");
+            }
+        }
+
+
+        /* ********************************************************************************************************* */
+        /* API ها برای مدیریت تعریف فرم‌های داینامیک (CreateFormCRM) */
+        /* ********************************************************************************************************* */
+
+
+
+
+        /* ********************************************************************************************************* */
+        /* جدید: API ها برای مدیریت داده‌های فرم (CrmFormData) - با استفاده از مدل شما */
+        /* ********************************************************************************************************* */
+
+        // POST: api/ControllerOne/crm-form-data
+        // برای ذخیره یک رکورد داده فرم جدید
+        [HttpPost("crm-form-data")]
+        public async Task<IActionResult> SaveCrmFormData([FromBody] CrmFormData crmFormData)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                // crmFormData.CreatedByUserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // اگر احراز هویت دارید
+                await _formService.SaveCrmFormDataAsync(crmFormData);
+                return CreatedAtAction(nameof(GetCrmFormDataEntryById), new { id = crmFormData.Id }, crmFormData);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"❌ خطا در ذخیره داده فرم: {ex.Message}");
+            }
+        }
+
+        // GET: api/ControllerOne/crm-form-data/by-definition/{formDefinitionId}
+        // برای دریافت تمام رکوردهای داده فرم برای یک تعریف فرم خاص
+        [HttpGet("crm-form-data/by-definition/{formDefinitionId}")]
+        public async Task<IActionResult> GetCrmFormDataByFormDefinitionId(int formDefinitionId)
+        {
+            try
+            {
+                var dataEntries = await _formService.GetCrmFormDataByFormDefinitionIdAsync(formDefinitionId);
+
+                // تبدیل FormDataJson به یک شیء قابل فهم برای فرانت‌اند
+                var result = dataEntries.Select(entry => new
+                {
+                    entry.Id,
+                    entry.FormDefinitionId,
+                    FormData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(entry.FormDataJson ?? "{}", new JsonSerializerOptions { PropertyNameCaseInsensitive = true }),
+                    entry.CreatedDate,
+                    entry.CreatedByUserId
+                }).ToList();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"❌ خطا در دریافت داده‌های فرم: {ex.Message}");
+            }
+        }
+
+        // GET: api/ControllerOne/crm-form-data/{id}
+        // برای دریافت یک رکورد داده فرم خاص بر اساس ID
+        [HttpGet("crm-form-data/{id}")]
+        public async Task<IActionResult> GetCrmFormDataEntryById(int id)
+        {
+            try
+            {
+                var entry = await _formService.GetCrmFormDataEntryByIdAsync(id);
+                if (entry == null)
+                {
+                    return NotFound("⛔ رکورد داده فرم با این شناسه یافت نشد.");
+                }
+
+                var result = new
+                {
+                    entry.Id,
+                    entry.FormDefinitionId,
+                    FormData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(entry.FormDataJson ?? "{}", new JsonSerializerOptions { PropertyNameCaseInsensitive = true }),
+                    entry.CreatedDate,
+                    entry.CreatedByUserId
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"❌ خطا در دریافت رکورد داده فرم: {ex.Message}");
+            }
+        }
+
+        // PUT: api/ControllerOne/crm-form-data/{id}
+        // برای بروزرسانی یک رکورد داده فرم
+        [HttpPut("crm-form-data/{id}")]
+        public async Task<IActionResult> UpdateCrmFormData(int id, [FromBody] CrmFormData crmFormData)
+        {
+            if (id != crmFormData.Id)
+            {
+                return BadRequest("⛔ شناسه رکورد داده فرم با شناسه مسیر همخوانی ندارد.");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var result = await _formService.UpdateCrmFormDataAsync(crmFormData);
+                if (!result)
+                {
+                    return NotFound("⛔ رکورد داده فرم با این شناسه یافت نشد.");
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"❌ خطا در بروزرسانی رکورد داده فرم: {ex.Message}");
+            }
+        }
+
+        // DELETE: api/ControllerOne/crm-form-data/{id}
+        // برای حذف یک رکورد داده فرم
+        [HttpDelete("crm-form-data/{id}")]
+        public async Task<IActionResult> DeleteCrmFormDataEntry(int id)
+        {
+            try
+            {
+                var result = await _formService.DeleteCrmFormDataEntryAsync(id);
+                if (!result)
+                {
+                    return NotFound("⛔ رکورد داده فرم با این شناسه یافت نشد.");
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"❌ خطا در حذف رکورد داده فرم: {ex.Message}");
+            }
+        }
+
+        /* ********************************************************************************************************* */
+        /* جدید: API ها برای مدیریت داده‌های فرم (CrmFormData) - با استفاده از مدل شما */
+        /* ********************************************************************************************************* */
+
+
+
+
+
+
+
         //_________________________________________________________________________________________
         /* api Rest  برای  ارسال  پیامک */
         /* کد  روزو  شده  */

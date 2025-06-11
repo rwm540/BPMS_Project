@@ -4,6 +4,8 @@ using ServerBPMS.Model;
 using System.Linq.Expressions;
 using ServerBPMS.DTOs;
 using ServerBPMS.Helpers;
+using System.Text.Json; // برای سریالایز و دی‌سریالایز کردن JSON
+using ServerBPMS.Model.DynamicForms; // برای FieldSchema و FieldOption
 
 
 namespace ServerBPMS.Server
@@ -19,6 +21,205 @@ namespace ServerBPMS.Server
             _db = db;
             _sendSMS = sendSMS;
         }
+
+
+        /* ********************************************************************************************************* */
+        /* بخش مدیریت تعریف فرم‌های داینامیک (CreateFormCRM) - مربوط به SchemaForm */
+        /* ********************************************************************************************************* */
+
+        // ذخیره/ایجاد یک تعریف فرم جدید
+        public async Task<bool> SaveFormSchemaAsync(CreateFormCRM formSchema)
+        {
+            if (formSchema == null)
+                throw new ArgumentNullException(nameof(formSchema));
+
+            // تبدیل Schema (List<FieldSchema>) به رشته JSON و ذخیره در SchemaJson
+            if (formSchema.Schema != null)
+            {
+                formSchema.SchemaJson = JsonSerializer.Serialize(formSchema.Schema, new JsonSerializerOptions { WriteIndented = true });
+            }
+            else
+            {
+                formSchema.SchemaJson = "[]";
+            }
+
+            formSchema.CreatedDate = DateTime.UtcNow;
+            formSchema.LastModifiedDate = DateTime.UtcNow;
+
+            _db.CreateFormCRMs.Add(formSchema);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        // بروزرسانی یک تعریف فرم موجود
+        public async Task<bool> UpdateFormSchemaAsync(CreateFormCRM formSchema)
+        {
+            if (formSchema == null)
+                throw new ArgumentNullException(nameof(formSchema));
+
+            var existingFormSchema = await _db.CreateFormCRMs.FindAsync(formSchema.Id);
+            if (existingFormSchema == null)
+                return false;
+
+            // بروزرسانی فیلدها
+            existingFormSchema.NameForm = formSchema.NameForm;
+            existingFormSchema.IdConnect = formSchema.IdConnect;
+            existingFormSchema.LastModifiedDate = DateTime.UtcNow;
+
+            if (formSchema.Schema != null)
+            {
+                existingFormSchema.SchemaJson = JsonSerializer.Serialize(formSchema.Schema, new JsonSerializerOptions { WriteIndented = true });
+            }
+            else
+            {
+                existingFormSchema.SchemaJson = "[]";
+            }
+
+            _db.CreateFormCRMs.Update(existingFormSchema);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        // دریافت تمام تعاریف فرم
+        public async Task<List<CreateFormCRM>> GetAllFormSchemasAsync()
+        {
+            var schemas = await _db.CreateFormCRMs.ToListAsync();
+            foreach (var schema in schemas)
+            {
+                // تبدیل SchemaJson به List<FieldSchema> برای استفاده در سمت سرور یا ارسال به کلاینت
+                if (!string.IsNullOrWhiteSpace(schema.SchemaJson))
+                {
+                    try
+                    {
+                        schema.Schema = JsonSerializer.Deserialize<List<FieldSchema>>(schema.SchemaJson);
+                    }
+                    catch (JsonException ex)
+                    {
+                        Console.WriteLine($"Error deserializing SchemaJson for Form ID {schema.Id}: {ex.Message}");
+                        schema.Schema = new List<FieldSchema>();
+                    }
+                }
+                else
+                {
+                    schema.Schema = new List<FieldSchema>();
+                }
+            }
+            return schemas;
+        }
+
+        // دریافت یک تعریف فرم خاص بر اساس ID
+        public async Task<CreateFormCRM?> GetFormSchemaByIdAsync(int id)
+        {
+            var schema = await _db.CreateFormCRMs.FirstOrDefaultAsync(f => f.Id == id);
+            if (schema != null && !string.IsNullOrWhiteSpace(schema.SchemaJson))
+            {
+                try
+                {
+                    schema.Schema = JsonSerializer.Deserialize<List<FieldSchema>>(schema.SchemaJson);
+                }
+                catch (JsonException ex)
+                {
+                    Console.WriteLine($"Error deserializing SchemaJson for Form ID {schema.Id}: {ex.Message}");
+                    schema.Schema = new List<FieldSchema>();
+                }
+            }
+            return schema;
+        }
+
+        // حذف یک تعریف فرم
+        public async Task<bool> DeleteFormSchemaAsync(int id)
+        {
+            var formSchema = await _db.CreateFormCRMs.FindAsync(id);
+            if (formSchema == null)
+                return false;
+
+            _db.CreateFormCRMs.Remove(formSchema);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        /* ********************************************************************************************************* */
+        /* بخش مدیریت تعریف فرم‌های داینامیک (CreateFormCRM) - مربوط به SchemaForm */
+        /* ********************************************************************************************************* */
+
+
+        /* ********************************************************************************************************* */
+        /* جدید: بخش مدیریت داده‌های فرم (CrmFormData) - با استفاده از مدل شما */
+        /* ********************************************************************************************************* */
+
+        // ذخیره/ایجاد یک رکورد داده فرم جدید
+        public async Task<bool> SaveCrmFormDataAsync(CrmFormData crmFormData)
+        {
+            if (crmFormData == null)
+                throw new ArgumentNullException(nameof(crmFormData));
+
+            // تنظیم CreatedDate اگر از سمت کلاینت ارسال نشده باشد
+            if (crmFormData.CreatedDate == null)
+            {
+                crmFormData.CreatedDate = DateTime.UtcNow;
+            }
+            // CreatedByUserId نیز می‌تواند از SecurityContext گرفته شود اگر احراز هویت دارید.
+            // crmFormData.CreatedByUserId = "someUserId"; 
+
+            _db.CrmFormDatas.Add(crmFormData); // **استفاده از DbSet<CrmFormData>**
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        // دریافت تمام رکوردهای داده فرم برای یک تعریف فرم خاص
+        public async Task<List<CrmFormData>> GetCrmFormDataByFormDefinitionIdAsync(int formDefinitionId)
+        {
+            return await _db.CrmFormDatas
+                            .Where(cfd => cfd.FormDefinitionId == formDefinitionId)
+                            .ToListAsync();
+        }
+
+        // دریافت یک رکورد داده فرم خاص بر اساس ID
+        public async Task<CrmFormData?> GetCrmFormDataEntryByIdAsync(int id)
+        {
+            return await _db.CrmFormDatas.FindAsync(id);
+        }
+
+        // بروزرسانی یک رکورد داده فرم
+        public async Task<bool> UpdateCrmFormDataAsync(CrmFormData crmFormData)
+        {
+            if (crmFormData == null)
+                throw new ArgumentNullException(nameof(crmFormData));
+
+            var existingEntry = await _db.CrmFormDatas.FindAsync(crmFormData.Id);
+            if (existingEntry == null)
+                return false;
+
+            // فقط فیلدهایی که می‌خواهید بروزرسانی شوند را اینجا تنظیم کنید.
+            existingEntry.FormDataJson = crmFormData.FormDataJson; // **استفاده از FormDataJson**
+            existingEntry.CreatedDate = DateTime.UtcNow; // تاریخ آخرین بروزرسانی
+            // existingEntry.CreatedByUserId = crmFormData.CreatedByUserId; // اگر همزمان کاربر ویرایش کننده را ذخیره می‌کنید.
+
+            _db.CrmFormDatas.Update(existingEntry);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        // حذف یک رکورد داده فرم
+        public async Task<bool> DeleteCrmFormDataEntryAsync(int id)
+        {
+            var entry = await _db.CrmFormDatas.FindAsync(id);
+            if (entry == null)
+                return false;
+
+            _db.CrmFormDatas.Remove(entry);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        /* ********************************************************************************************************* */
+        /* جدید: بخش مدیریت داده‌های فرم (CrmFormData) - با استفاده از مدل شما */
+        /* ********************************************************************************************************* */
+
+
+
+
+
 
 
         /*Send SMS CodeVeryfive */

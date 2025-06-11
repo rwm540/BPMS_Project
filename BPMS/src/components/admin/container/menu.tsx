@@ -27,7 +27,8 @@ import {
   FaChartBar,
   FaUsers,
   FaNetworkWired,
-  FaWallet
+  FaWallet,
+  FaIndustry
 } from "react-icons/fa6";
 
 interface State {
@@ -35,15 +36,15 @@ interface State {
   dashboarding: boolean;
   create_forms: boolean;
   managment_proccess_design: boolean;
-  powerbi:boolean;
-  crm:boolean;
-  hrm:boolean;
-  erp:boolean;
-  wallet:boolean;
-  CustomerUser:boolean;
-  Contract:boolean;
-  TICKET:boolean;
-  Reports:boolean;
+  powerbi: boolean;
+  crm: boolean;
+  hrm: boolean;
+  erp: boolean;
+  wallet: boolean;
+  CustomerUser: boolean;
+  Contract: boolean;
+  TICKET: boolean;
+  Reports: boolean;
   // هر مورد دیگه‌ای که قراره باشه
 }
 
@@ -59,9 +60,7 @@ function toPersianDigits(input: string | number): string {
   return input.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[parseInt(d)]);
 }
 
-
 const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
-
   return (
     <>
       <ul className="menu flex-nowrap overflow-x-hidden overflow-y-scroll bg-white  w-56 rounded-box h-full gap-2 shadow-md dark:shadow-slate-400">
@@ -83,11 +82,8 @@ const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
           </Link>
         </li>
 
-
-
-
-      {/* کیف پول */}
-      <li>
+        {/* کیف پول */}
+        <li>
           <details>
             <summary
               className={`text-base ${
@@ -109,7 +105,7 @@ const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
                   }}
                   className="text-base text-base-content"
                 >
-                حساب مالی شما
+                  حساب مالی شما
                 </Link>
               </li>
               <li>
@@ -121,7 +117,7 @@ const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
                   }}
                   className="text-base text-base-content"
                 >
-                 تراکنش ها
+                  تراکنش ها
                   <span className="text-xs font-bold text-white bg-green-500 rounded-full min-w-[2rem] h-6 px-2 flex items-center justify-center whitespace-nowrap">
                     {numberProccess}
                   </span>
@@ -132,8 +128,6 @@ const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
         </li>
         {/* کیف پول */}
 
-
-       
         {/* فرآیند */}
 
         <li>
@@ -195,7 +189,7 @@ const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
           <details>
             <summary
               className={`text-base ${
-                  state["x"]
+                state["x"]
                   ? "bg-primary hover:bg-primary text-base-200"
                   : "text-base-content"
               }`}
@@ -303,23 +297,26 @@ const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
         {/* فرم */}
 
         {/* CRM */}
-        
+
         <li>
           <details>
             <summary
               className={`text-base ${
-                state["crm"] || state["CustomerUser"] || 
-                state["Contract"] || state["Crm_CreateForm"] 
-                || state["TICKET"] || state["Reports"]
+                state["crm"] ||
+                state["CustomerUser"] ||
+                state["Contract"] ||
+                state["Crm_CreateForm"] ||
+                state["TICKET"] ||
+                state["Reports"]
                   ? "bg-primary hover:bg-primary text-base-200"
                   : "text-base-content"
               }`}
             >
-            <FaUserTie/>
+              <FaUserTie />
               CRM
             </summary>
             <ul>
-               <li>
+              <li>
                 <Link
                   href={""}
                   onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -328,7 +325,7 @@ const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
                   }}
                   className="text-base text-base-content"
                 >
-                 گروه بندی کاربران 
+                  گروه بندی کاربران
                 </Link>
               </li>
               <li>
@@ -340,7 +337,7 @@ const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
                   }}
                   className="text-base text-base-content"
                 >
-                 تعریف مشتری
+                  تعریف مشتری
                 </Link>
               </li>
               <li>
@@ -352,7 +349,7 @@ const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
                   }}
                   className="text-base text-base-content"
                 >
-               قرار دادها
+                  قرار دادها
                 </Link>
               </li>
               <li>
@@ -364,7 +361,7 @@ const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
                   }}
                   className="text-base text-base-content"
                 >
-              تعریف تیکت
+                  تعریف تیکت
                 </Link>
               </li>
               <li>
@@ -376,7 +373,7 @@ const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
                   }}
                   className="text-base text-base-content"
                 >
-                    گزارشات
+                  گزارشات
                 </Link>
               </li>
             </ul>
@@ -384,7 +381,6 @@ const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
         </li>
 
         {/* CRM */}
-
 
         {/* POER BI */}
         <li
@@ -394,20 +390,42 @@ const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
               : "text-base-content"
           }`}
         >
-          <Link href={""} 
-             onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+          <Link
+            href={""}
+            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
               e.preventDefault(); // جلوگیری از ریلود صفحه
               SideBarActive("powerbi");
             }}
           >
-            <FaChartBar  />
+            <FaChartBar />
             POWER BI
           </Link>
         </li>
         {/* POER BI */}
 
-         {/* Human Resources */}
-         <li>
+        {/* حسابداری صنعتی */}
+
+        <li>
+          <Link
+            href={""}
+            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+              e.preventDefault(); // جلوگیری از ریلود صفحه
+              SideBarActive("dashboarding");
+            }}
+            className={`text-base ${
+              state["dashboarding"]
+                ? "bg-primary hover:bg-primary text-base-200"
+                : "text-base-content"
+            }`}
+          >
+            <FaIndustry />
+            حسابداری صنعتی
+          </Link>
+        </li>
+        {/* حسابداری صنعتی */}
+
+        {/* Human Resources */}
+        <li>
           <details>
             <summary
               className={`text-base ${
@@ -417,37 +435,37 @@ const Menu: FC<menuProps> = ({ SideBarActive, state, numberProccess }) => {
               }`}
             >
               <FaClipboardList />
-                منابع انسانی
+              منابع انسانی
             </summary>
             <ul>
               <li className="text-base text-base-content">
-              <Link href={""}
-           onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-            e.preventDefault(); // جلوگیری از ریلود صفحه
-            SideBarActive("erp");
-          }}
-          >
-            <FaNetworkWired />
-            ERP
-          </Link>
+                <Link
+                  href={""}
+                  onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                    e.preventDefault(); // جلوگیری از ریلود صفحه
+                    SideBarActive("erp");
+                  }}
+                >
+                  <FaNetworkWired />
+                  ERP
+                </Link>
               </li>
               <li className="text-base text-base-content">
-          <Link href={""}  
-           onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-            e.preventDefault(); // جلوگیری از ریلود صفحه
-            SideBarActive("hrm");
-          }}
-          >
-            <FaUsers />
-            HRM
-          </Link>
-        </li>
+                <Link
+                  href={""}
+                  onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                    e.preventDefault(); // جلوگیری از ریلود صفحه
+                    SideBarActive("hrm");
+                  }}
+                >
+                  <FaUsers />
+                  HRM
+                </Link>
+              </li>
             </ul>
           </details>
         </li>
         {/* Human Resources */}
-
-
       </ul>
     </>
   );

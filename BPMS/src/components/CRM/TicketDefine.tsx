@@ -9,11 +9,16 @@ const generateTicketID = () => {
 
 // 📊 نگاشت اولویت به سطح فارسی
 const priorityLevels: Record<number, string> = {
-  1: "طلایی",
-  2: "نقره‌ای",
-  3: "برنزی",
-  4: "پلاتینیومی",
-  5: "سیاه"
+  1: "ممتاز",
+  2: "درجه 1",
+  3: "درجه 2",
+  4: "درجه 3",
+  5: "درجه 4",
+  6: "درجه 5",
+  7: "درجه 6",
+  8: "درجه 7",
+  9: "درجه 8",
+  10: "درجه 9"
 };
 
 // 🎨 نگاشت وضعیت به رنگ استایل
@@ -33,7 +38,7 @@ const TicketDefine = () => {
   const [assignee, setAssignee] = useState("");
   const [ticketID, setTicketID] = useState("");
   const [tickets, setTickets] = useState<any[]>([]);
-  const [showList, setShowList] = useState(false);
+  const [showList, setShowList] = useState(true);
   const [createdAt, setCreatedAt] = useState("");
   const [editIndex, setEditIndex] = useState<number | null>(null);
 
@@ -136,13 +141,12 @@ const TicketDefine = () => {
   return (
     <div className="p-6 bg-white rounded-lg shadow-md w-full max-w-4xl mx-auto mt-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-black">تعریف تیکت</h2>
-        <button
+        {/* <button
           onClick={() => setShowList(!showList)}
           className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition"
         >
           {showList ? "➕ ایجاد تیکت جدید" : "📄 نمایش لیست تیکت‌ها"}
-        </button>
+        </button> */}
       </div>
 
       {showList ? (
@@ -200,7 +204,7 @@ const TicketDefine = () => {
         </table>
       ) : (
         <>
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <label className="block text-black mb-1">شناسه تیکت</label>
             <div className="w-full px-4 py-2 border rounded-lg bg-gray-100 text-black select-none">
               {ticketID}
@@ -250,11 +254,16 @@ const TicketDefine = () => {
                 onChange={(e) => setPriority(Number(e.target.value))}
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 text-black"
               >
-                <option value={1}>طلایی</option>
-                <option value={2}>نقره‌ای</option>
-                <option value={3}>برنزی</option>
-                <option value={4}>پلاتینیومی</option>
-                <option value={5}>سیاه</option>
+                <option value={1}>ممتاز</option>
+                <option value={2}>درجه 1</option>
+                <option value={3}>درجه 2</option>
+                <option value={4}>درجه 3</option>
+                <option value={5}>درجه 4</option>
+                <option value={6}>درجه 5</option>
+                <option value={7}>درجه 6</option>
+                <option value={8}>درجه 7</option>
+                <option value={9}>درجه 8</option>
+                <option value={10}>درجه 9</option>
               </select>
             </div>
 
@@ -298,14 +307,14 @@ const TicketDefine = () => {
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 text-black"
               />
             </div>
-          </div>
+          </div> */}
 
-          <button
+          {/* <button
             onClick={handleSave}
             className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
           >
             {editIndex !== null ? "به‌روزرسانی تیکت" : "ثبت تیکت"}
-          </button>
+          </button> */}
         </>
       )}
     </div>

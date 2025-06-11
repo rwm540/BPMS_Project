@@ -7,6 +7,17 @@ BPMS/out/
 BPMS/package-lock.json
 BPMS/.turbo/
 
+# === Node.js / Next.js ===
+WebSiteSENIK/node_modules/
+WebSiteSENIK/.next/
+WebSiteSENIK/.env.local
+WebSiteSENIK/.env
+WebSiteSENIK/out/
+WebSiteSENIK/package-lock.json
+WebSiteSENIK/.turbo/
+
+
+
 # === ASP.NET Core ===
 ServerBPMS/bin/
 ServerBPMS/obj/

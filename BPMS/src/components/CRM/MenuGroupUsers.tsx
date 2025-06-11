@@ -99,7 +99,7 @@ export default function GroupUserDynamicForm() {
     reordered.splice(result.destination.index, 0, moved);
     setFields(reordered);
   };
-  
+
   /* فارسی  سازی */
   const toPersianDigits = (str: string) => {
     const enDigits = "0123456789";
@@ -111,26 +111,32 @@ export default function GroupUserDynamicForm() {
   const handleChange = (key: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
-      [key]: value,
+      [key]: value
     }));
   };
 
   const renderFieldInput = (field: any) => {
     const inputClass = "border px-2 py-1 rounded w-full text-black text-sm";
-  
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+
+    const handleInputChange = (
+      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
       const val = toPersianDigits(e.target.value);
       handleChange(field.title, val);
     };
 
     const persianToEnglishDigits = (str: string) => {
-      return str.replace(/[۰-۹]/g, (d) => String.fromCharCode(d.charCodeAt(0) - 1728));
+      return str.replace(/[۰-۹]/g, (d) =>
+        String.fromCharCode(d.charCodeAt(0) - 1728)
+      );
     };
-    
+
     const englishToPersianDigits = (str: string) => {
-      return str.replace(/\d/g, (d) => String.fromCharCode(d.charCodeAt(0) + 1728));
+      return str.replace(/\d/g, (d) =>
+        String.fromCharCode(d.charCodeAt(0) + 1728)
+      );
     };
-  
+
     switch (field.type) {
       case "text":
         return (
@@ -142,14 +148,18 @@ export default function GroupUserDynamicForm() {
             onChange={(e) => handleChange(field.title, e.target.value)}
           />
         );
-  
+
       case "number":
         return (
           <input
             type="text" // نه number چون فارسی رو قبول نمی‌کنه
             className={inputClass}
             placeholder="عدد وارد کنید"
-            value={formData[field.title] ? englishToPersianDigits(formData[field.title]) : ""}
+            value={
+              formData[field.title]
+                ? englishToPersianDigits(formData[field.title])
+                : ""
+            }
             onChange={(e) => {
               const rawValue = persianToEnglishDigits(e.target.value);
               if (/^\d*\.?\d*$/.test(rawValue)) {
@@ -160,7 +170,7 @@ export default function GroupUserDynamicForm() {
             pattern="[0-9]*"
           />
         );
-  
+
       case "textarea":
         return (
           <textarea
@@ -171,7 +181,7 @@ export default function GroupUserDynamicForm() {
             onChange={(e) => handleChange(field.title, e.target.value)}
           />
         );
-  
+
       case "date":
         return (
           <DatePicker
@@ -179,11 +189,13 @@ export default function GroupUserDynamicForm() {
             locale={persian_fa}
             inputClass={inputClass}
             value={formData[field.title]}
-            onChange={(date) => handleChange(field.title, date?.format("YYYY/MM/DD"))}
+            onChange={(date) =>
+              handleChange(field.title, date?.format("YYYY/MM/DD"))
+            }
             placeholder={`انتخاب ${field.title}`}
           />
         );
-  
+
       case "checkbox":
         return (
           <input
@@ -193,7 +205,7 @@ export default function GroupUserDynamicForm() {
             onChange={(e) => handleChange(field.title, e.target.checked)}
           />
         );
-  
+
       case "select":
         return (
           <select
@@ -208,12 +220,11 @@ export default function GroupUserDynamicForm() {
             ))}
           </select>
         );
-  
+
       default:
         return null;
     }
   };
-
 
   const [createTables, setCreateTables] = useState(false);
   const handleGenerateJSON = () => {
@@ -250,8 +261,6 @@ export default function GroupUserDynamicForm() {
     }
   };
 
-
-
   return (
     <div className="flex flex-wrap gap-4 items-start w-full overflow-x-hidden">
       {createTables ? (
@@ -272,7 +281,10 @@ export default function GroupUserDynamicForm() {
           >
             تغییر فرم
           </button>
-          <JsonFormRenderer schema={JSON.parse(jsonOutput)} />
+          <JsonFormRenderer
+            schema={JSON.parse(jsonOutput)}
+            titleForm={"فرم  گروه  بندی کاربران"}
+          />
         </>
       ) : (
         <>
@@ -328,7 +340,7 @@ export default function GroupUserDynamicForm() {
               onClick={handleGenerateJSON}
               className="w-full mt-2 bg-indigo-600 text-white px-3 py-1.5 rounded hover:bg-indigo-700 transition text-sm flex items-center justify-center gap-2"
             >
-                ایجاد فرم
+              ایجاد فرم
             </button>
           </div>
 
